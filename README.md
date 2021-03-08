@@ -10,6 +10,28 @@ The intention behind this is to provide an out-of-the-box structure for many pat
 
 The goal is to have React code that is easily testable, mockable, interchangable, and readable. It is also something I want to continue to work on to provide and represent an ideal and consistent structure for React projects.
 
+### Architecture Considerations/Requirements
+
+These are the things I want in a React app (or any app) insofar as I can achieve them sensibly. This started with wanting a way to easily change out functions being called by hooks e.g. `login`. If I decided to switch managed services, I wanted it to be seamless. I could have just provided an interface in addition to my custom hooks actions, but then implementation details and configuration are still a problem, like in the case with firebase where the app needs to be initialized.
+
+So with that said here are the needs:
+
+1. a provider pattern in order to easily switch out implementations when necessary.
+2. a way to test and mock easily.
+3. a place to bootstrap some third-party functionality (e.g. firebase).
+4. global state
+5. a place to connect components with services that had access to global state
+6. some sort of reducer + state machine pattern that made sense but was simple
+
+with these requirements I came up with:
+
+1. a global state using useReducer, an action pattern similar to Redux/finite state machines, and Context API
+2. services with interfaces being provided by `react-service-container`. Since services are provided and dependencies are injected they can be easily tested.
+3. `mock-service-worker` provides any server-side functionality I want to mock or test. Again, since services are provided and dependencies are injected they can leverage `msw` more easily.
+4. custom hooks that return "actions" which can call service methods, have access to global state, can dispatch new state, and perform side effects using `useEffect`.
+5. providers which can flexibly handle application logic for which service to provide based on environment, context, or arbitrary factors.
+6. TypeScript to implement interfaces, extended types (from third-party libraries), and prop types.
+
 ## Structure
 
 There are several folders to explain:
@@ -89,3 +111,4 @@ Services need to be registered to the provider via the documentation. Simply add
 - [React Service Container](https://github.com/traviskaufman/react-service-container) - by [@traviskaufman](https://github.com/traviskaufman)
 - [Mocking Fetch/Servers with Mock Service Worker](https://kentcdodds.com/blog/stop-mocking-fetch?ck_subscriber_id=653252534) - by [@kentcdoddds](https://github.com/kentcdodds)
 - [Material UI](https://material-ui.com/)
+- [useReducer as Finite State Machine](https://kyleshevlin.com/how-to-use-usereducer-as-a-finite-state-machine) - by [@kyleshevlin](https://github.com/kyleshevlin)
