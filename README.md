@@ -2,8 +2,6 @@
 
 ## A boilerplate React repository with state management, service-based custom hooks, mock service worker handlers for testing, and TypeScript
 
----
-
 ## Motivation
 
 This is a boilerplate repository for a React application using TypeScript.
@@ -69,8 +67,6 @@ all of your types including service interfaces and prop types for your react com
 
 various utilities for you to use - e.g. calculations for business logic, interceptors for http, handlers for errors.
 
----
-
 ## Useage
 
 ### Auth Service
@@ -86,8 +82,6 @@ In addition to this, the firebase service uses emulators for testing. You can al
 This repository uses [`react-service-container`](https://github.com/traviskaufman/react-service-container) to provide and bootstrap services. This acts as a top-level wrapper of the React App similar to `StateProvider` and `MuiThemeProvider`
 
 Services need to be registered to the provider via the documentation. Simply add the service you wish to provide to the `providers` prop of the `ServiceContainer` in `App.tsx`.
-
----
 
 ## Resources
 
