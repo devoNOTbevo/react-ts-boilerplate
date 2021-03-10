@@ -5,7 +5,11 @@ import AuthService from '../providers/auth-service-provider';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { ActionType } from '../reducers/reducer';
 import { useHistory, useLocation } from 'react-router-dom';
-import { HOME_PATH, LOGIN_PATH, ENTRY_PATH } from '../config/route-constants';
+import {
+  PUBLIC_PATHS,
+  PROTECTED_PATHS,
+  isPublicPath,
+} from '../config/route-constants';
 
 export type LoginActions = {
   login: (email: string, password: string) => void;
@@ -23,42 +27,54 @@ function useAuthActions(): LoginActions {
   const [user, loading, error] = useAuthState(authService.auth);
   const history = useHistory();
   const location = useLocation<LocationState>();
-  const { from = { pathname: HOME_PATH } } = location.state || {};
+  const { from = { pathname: PROTECTED_PATHS.HOME_PATH } } =
+    location.state || {};
   const {
     user: { isAuthenticated },
   } = state;
 
   useEffect(() => {
     async function persistUserDataToStore() {
-      if (isAuthenticated) {
-        history.replace({ pathname: ENTRY_PATH, state: { from } });
-      }
       if (!loading) {
         if (error || user === null) {
           dispatch({
             type: ActionType.SIGN_OUT,
           });
-          history.replace({ pathname: LOGIN_PATH, state: { from } });
-          console.log('Not authed: ', error);
-        } else {
-          if (user && !isAuthenticated) {
-            const token = await user.getIdToken();
-            dispatch({
-              type: ActionType.SIGN_IN,
-              payload: {
-                email: user.email,
-                isAuthenticated: true,
-                authToken: token,
-              },
-            });
-            history.replace({ pathname: LOGIN_PATH, state: { from } });
+          if (error) {
+            console.log('Not authed: ', error);
           }
+        } else if (user && !isAuthenticated) {
+          const token = await user.getIdToken();
+          dispatch({
+            type: ActionType.SIGN_IN,
+            payload: {
+              email: user.email,
+              isAuthenticated: true,
+              authToken: token,
+            },
+          });
         }
       }
     }
 
+    async function handleRouteProtection() {
+      if (isAuthenticated) {
+        history.replace({
+          pathname:
+            from.pathname === '/' ? PROTECTED_PATHS.ENTRY_PATH : from.pathname,
+          state: { from },
+        });
+      } else if (!isPublicPath(location.pathname)) {
+        history.replace({
+          pathname: PUBLIC_PATHS.LOGIN_PATH,
+          state: { from },
+        });
+      }
+    }
+
     persistUserDataToStore();
-  }, [user, loading, error, dispatch, isAuthenticated, history, from]);
+    handleRouteProtection();
+  }, [user, loading, error, dispatch, isAuthenticated]);
 
   const login = async (email: string, password: string) => {
     try {
