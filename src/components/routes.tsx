@@ -15,7 +15,7 @@ const MainBodyWrapper: React.FC = ({ children }) => {
   return <MainLayout>{children}</MainLayout>;
 };
 
-export default function MainBody() {
+export default function Routes() {
   const { state } = useStateContext();
   const {
     user: { isAuthenticated },
@@ -36,35 +36,9 @@ export default function MainBody() {
       </Route>
       <PrivateRoute>
         <MainBodyWrapper>
-          <div>Home Route fuh sho</div>
+          <div>Entry Point</div>
         </MainBodyWrapper>
       </PrivateRoute>
     </Switch>
   );
 }
-
-// A wrapper for <Route> that redirects to the login
-// screen if you're not yet authenticated.
-const PrivateRoute: React.FC = ({ children, ...rest }) => {
-  const location = useLocation();
-  console.log(location);
-  const { state } = useStateContext();
-  const {
-    user: { isAuthenticated },
-  } = state;
-  return (
-    <Route
-      {...rest}
-      render={({ location }) =>
-        isAuthenticated || location.pathname === '/login' ? null : (
-          <Redirect
-            to={{
-              pathname: '/login',
-              state: { from: location },
-            }}
-          />
-        )
-      }
-    />
-  );
-};
